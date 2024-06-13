@@ -1,59 +1,87 @@
-import React, { useState } from 'react';
-import Form from './component/Form';
-import Table from './component/Table';
+import { useState } from "react";
+import "./App.css";
 
-const App = () => {
-  const [formValues, setFormValues] = useState({
+function App() {
+  // states
+  const [inputValue, setInputValue] = useState({
     name: "",
-    email: "",
-    phoneNo: "",
-    password: "",
+    class: "",
   });
+
   const [data, setData] = useState([]);
-  const [editId, setEditId] = useState(null);
-
-  const handleData = (e) => {
+  const [editId, setUserEdit] = useState(null);
+  // handle change
+  const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormValues({ ...formValues, [name]: value });
+    setInputValue({ ...inputValue, [name]: value });
+    console.log(inputValue);
   };
-
+  // form is submit
   const handleSubmit = (e) => {
     e.preventDefault();
     if (editId !== null) {
       const updateUser = data.map((curElem) =>
-        curElem.id === editId ? { ...formValues, id: curElem.id } : curElem
+        curElem.id === editId ? { ...inputValue, id: curElem.id } : curElem
       );
       setData(updateUser);
-      setEditId(null);
+      setUserEdit(null);
     } else {
-      const user = { ...formValues, id: new Date().getTime().toString() };
-      setData([...data, user]);
+      let info = { ...inputValue, id: new Date().getTime().toString() };
+      setData([...data, info]);
     }
-    setFormValues({ name: "", email: "", phoneNo: "", password: "" });
-  };
 
+    setInputValue({ name: "", class: "" });
+  };
+  // handle delete functionality
   const handleDelete = (id) => {
-    setData(data.filter((item) => item.id !== id));
+    setData(data.filter((curElem) => curElem.id !== id));
   };
-
+  // handle Edit functionality
   const handleEdit = (id) => {
-    const userEdit = data.find((user) => user.id === id);
-    setFormValues(userEdit);
-    setEditId(id);
+    const userEdit = data.find((curElem) => curElem.id === id);
+    setInputValue(userEdit);
+    setUserEdit(id);
   };
 
   return (
     <>
-      <h1>Registration Form</h1>
-      <Form
-        formValues={formValues}
-        handleData={handleData}
-        handleSubmit={handleSubmit}
-        editId={editId}
+      <h1>TODO LIST</h1>
+      <input
+        type="text"
+        name="name"
+        value={inputValue.name}
+        placeholder="enter Name"
+        onChange={handleChange}
       />
-      <Table data={data} handleDelete={handleDelete} handleEdit={handleEdit} />
+      <input
+        type="text"
+        name="class"
+        placeholder="enter class"
+        value={inputValue.class}
+        onChange={handleChange}
+      />
+      <button type="submit" onClick={handleSubmit}>{editId?"Update":"Submit"}</button>
+
+      <ul>
+        {data.map((curElem) => {
+          return (
+            <li key={curElem.id}>
+              {curElem.name} - {curElem.class}
+              <div>
+                <button
+                  className="btn"
+                  onClick={() => handleDelete(curElem.id)}
+                >
+                  Delete
+                </button>
+                <button onClick={() => handleEdit(curElem.id)}>Edit</button>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
     </>
   );
-};
+}
 
 export default App;
